@@ -108,25 +108,36 @@ upsampled_logits = tf.nn.conv2d_transpose(logits, upsample_filter_tensor_x2,
                                           strides=[1, 2, 2, 1],
                                           padding='SAME')
 
+logging.debug('fuse pool4...')
 
 upsampled_logits = upsampled_logits + aux_logits_16s #fuse_pool4
 
+
 with tf.variable_scope('vgg_16/fc8'):
+    logging.debug('score pool3...')
     aux_logits_8s = slim.conv2d(pool3_feature, number_of_classes, [1, 1],
                              activation_fn=None,
                              weights_initializer=tf.zeros_initializer,
                              scope='conv_pool3') #score_pool3
 
-upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_x2,
+upsample_filter_np_xx2 = bilinear_upsample_weights(2,  # upsample_factor,
+                                                  number_of_classes)
+upsample_filter_tensor_xx2 = tf.Variable(upsample_filter_np_xx2, name='vgg_16/fc8/t_conv_xx2')
+
+logging.debug('score pool3c...')
+upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_xx2,
                                           output_shape=tf.shape(aux_logits_8s),
                                           strides=[1, upsample_factor, upsample_factor, 1],
                                           padding='SAME') #score_pool3c
+
+logging.debug('fuse pool3...')
 upsampled_logits = upsampled_logits + aux_logits_8s #fuse_pool3
 
 upsample_filter_np_x8 = bilinear_upsample_weights(upsample_factor,
                                                    number_of_classes)
 upsample_filter_tensor_x8 = tf.Variable(upsample_filter_np_x8, name='vgg_16/fc8/t_conv_x8')
 
+logging.debug('fuse 8x...')
 upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_x8,
                                           output_shape=upsampled_logits_shape,
                                           strides=[1, upsample_factor, upsample_factor, 1],
