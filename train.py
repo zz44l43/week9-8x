@@ -125,8 +125,9 @@ upsampled_logits = upsampled_logits + aux_logits_8s #fuse_pool3
 
 upsample_filter_np_x8 = bilinear_upsample_weights(upsample_factor,
                                                    number_of_classes)
+upsample_filter_tensor_x8 = tf.Variable(upsample_filter_np_x8, name='vgg_16/fc8/t_conv_x8')
 
-upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_np_x8,
+upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_x8,
                                           output_shape=upsampled_logits_shape,
                                           strides=[1, upsample_factor, upsample_factor, 1],
                                           padding='SAME')
