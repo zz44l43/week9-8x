@@ -127,7 +127,7 @@ upsample_filter_tensor_xx2 = tf.Variable(upsample_filter_np_xx2, name='vgg_16/fc
 logging.debug('score pool3c...')
 upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_xx2,
                                           output_shape=tf.shape(aux_logits_8s),
-                                          strides=[1, upsample_factor, upsample_factor, 1],
+                                          strides=[1, 2, 2, 1],
                                           padding='SAME') #score_pool3c
 
 logging.debug('fuse pool3...')
