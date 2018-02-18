@@ -111,7 +111,8 @@ upsampled_logits = tf.nn.conv2d_transpose(logits, upsample_filter_tensor_x2,
 
 upsampled_logits = upsampled_logits + aux_logits_16s #fuse_pool4
 
-aux_logits_8s = slim.conv2d(pool3_feature, number_of_classes, [1, 1],
+with tf.variable_scope('vgg_16/fc8'):
+    aux_logits_8s = slim.conv2d(pool3_feature, number_of_classes, [1, 1],
                              activation_fn=None,
                              weights_initializer=tf.zeros_initializer,
                              scope='conv_pool3') #score_pool3
