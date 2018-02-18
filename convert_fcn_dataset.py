@@ -6,11 +6,13 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from vgg import vgg_16
-
+import sys
+sys.path.insert(0,'../week8_homework/homework/object_detection')
+from object_detection.utils import dataset_util
 
 flags = tf.app.flags
-flags.DEFINE_string('data_dir', '', 'Root directory to raw pet dataset.')
-flags.DEFINE_string('output_dir', '', 'Path to directory to output TFRecords.')
+flags.DEFINE_string('data_dir', './VOCdevkit/VOC2012', 'Root directory to raw pet dataset.')
+flags.DEFINE_string('output_dir', './', 'Path to directory to output TFRecords.')
 
 FLAGS = flags.FLAGS
 
@@ -53,12 +55,13 @@ def dict_to_tf_example(data, label):
 
     # Your code here, fill the dict
     feature_dict = {
-        'image/height': None,
-        'image/width': None,
-        'image/filename': None,
-        'image/encoded': None,
-        'image/label': None,
-        'image/format': None,
+        'image/height': dataset_util.int64_feature(height),
+        'image/width': dataset_util.int64_feature(width),
+        'image/filename': dataset_util.bytes_feature(
+            os.path.split(data)[1].encode('utf8')),
+        'image/encoded': dataset_util.bytes_feature(encoded_data),
+        'image/label': dataset_util.bytes_feature(encoded_label),
+        'image/format': dataset_util.bytes_feature('jpeg'.encode('utf8')),
     }
     example = tf.train.Example(features=tf.train.Features(feature=feature_dict))
     return example
@@ -66,7 +69,13 @@ def dict_to_tf_example(data, label):
 
 def create_tf_record(output_filename, file_pars):
     # Your code here
-    pass
+    writer = tf.python_io.TFRecordWriter(output_filename)
+    for (data,label) in file_pars:
+        print(data, label)
+        tf_example = dict_to_tf_example(data, label)
+        if tf_example is not None:
+            writer.write(tf_example.SerializeToString())
+    writer.close()
 
 
 def read_images_names(root, train=True):
