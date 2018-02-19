@@ -1,180 +1,261 @@
-# 简介
-本代码为系列课程, 第九周部分的课后作业内容。
-http://edu.csdn.net/lecturer/1427
+# Report for week9
 
-# TinymMind上GPU运行费用较贵，每 CPU 每小时 $0.09，每 GPU 每小时 $0.99，所有作业内容推荐先在本地运行出一定的结果，保证运行正确之后，再上传到TinyMind上运行。初始运行推荐使用CPU运行资源，待所有代码确保没有问题之后，再启动GPU运行。
+#### Code modification for - convert_fcn_dataset.py
 
-TinyMind上Tensorflow已经有1.4的版本，能比1.3的版本快一点，推荐使用。
+This section of code is to link the classes and color map. So in the end, it will generate a TFRecord file for TesnsorFlow to consume and process.
 
-## 作业内容
-
-本作业以week9视频中讲述的FCN为基础，构建一个FCN训练模型，要求学员实现代码中缺失的部分并使用自己的实现跑出比较好的结果。
-
-
-
-### 数据集
-本作业使用Pascal2 VOC2012的数据中，语义分割部分的数据作为作业的数据集。
-
-VOC网址：http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
-
-本次作业不提供数据集下载，请学员自行到上述网址找到并下载数据，同时请仔细阅读VOC网站对于数据集的描述。
-
-VOC数据集目录结构如下：
-```
-├── local
-│   ├── VOC2006
-│   └── VOC2007
-├── results
-│   ├── VOC2006
-│   │   └── Main
-│   └── VOC2007
-│       ├── Layout
-│       ├── Main
-│       └── Segmentation
-├── VOC2007
-│   ├── Annotations
-│   ├── ImageSets
-│   │   ├── Layout
-│   │   ├── Main
-│   │   └── Segmentation
-│   ├── JPEGImages
-│   ├── SegmentationClass
-│   └── SegmentationObject
-├── VOC2012
-│   ├── Annotations
-│   ├── ImageSets
-│   │   ├── Action
-│   │   ├── Layout
-│   │   ├── Main
-│   │   └── Segmentation
-│   ├── JPEGImages
-│   ├── SegmentationClass
-│   └── SegmentationObject
-└── VOCcode
+```python
+import sys
+sys.path.insert(0,'../week8_homework/homework/object_detection')
+from object_detection.utils import dataset_util
 ```
 
-其中本次作业使用VOC2012目录下的内容。作业数据集划分位于**VOC2012/ImageSets/Segmentation**中，分为train.txt 1464张图片和val.txt1449张图片。
+Re-use dataset_utils from previous week's code - so we can make our life easier. Thus we need sys pkg.
 
-语义分割标签位于**VOC2012/SegmentationClass**,注意不是数据集中所有的图片都有语义分类的标签。
-语义分割标签用颜色来标志不同的物体，该数据集中共有20种不同的物体分类，以1～20的数字编号，加上编号为0的背景分类，该数据集中共有21种分类。编号与颜色的对应关系如下：
-```py
-# class
-classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
-           'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable',
-           'dog', 'horse', 'motorbike', 'person', 'potted plant',
-           'sheep', 'sofa', 'train', 'tv/monitor']
+~~~~python
+feature_dict = {
+    'image/height': dataset_util.int64_feature(height),
+    'image/width': dataset_util.int64_feature(width),
+    'image/filename': dataset_util.bytes_feature(
+        os.path.split(data)[1].encode('utf8')),
+    'image/encoded': dataset_util.bytes_feature(encoded_data),
+    'image/label': dataset_util.bytes_feature(encoded_label),
+    'image/format': dataset_util.bytes_feature('jpeg'.encode('utf8')),
+}
+~~~~
 
-# RGB color for each class
-colormap = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0], [0, 0, 128],
-            [128, 0, 128], [0, 128, 128], [128, 128, 128], [64, 0, 0], [192, 0, 0],
-            [64, 128, 0], [192, 128, 0], [64, 0, 128], [192, 0, 128],
-            [64, 128, 128], [192, 128, 128], [0, 64, 0], [128, 64, 0],
-            [0, 192, 0], [128, 192, 0], [0, 64, 128]]
+In the dict_to_tf_example definition we full fill the feature dictionary.
+
+Full fill the properties of the features
+
+~~~~python
+def create_tf_record(output_filename, file_pars):
+    # Your code here
+    writer = tf.python_io.TFRecordWriter(output_filename)
+    for (data,label) in file_pars:
+        print(data, label)
+        tf_example = dict_to_tf_example(data, label)
+        if tf_example is not None:
+            writer.write(tf_example.SerializeToString())
+    writer.close()
+~~~~
+
+Make sure the writer output the files to the directory
+
+
+
+#### Code modification for - convert_fcn_dataset.py
+
+The purpose of this section of code is to convert fcn16x to fcn8x.
+
+~~~~python
+upsample_factor = 8
+~~~~
+
+Change the upsample factor from 16 to 8. So that network only requires to backwards convolution 8 times in the end rather than 16 times. It is simply reverses the forwards and backward passes of convolution.
+
+~~~~python
+pool3_feature = end_points['vgg_16/pool3']
+~~~~
+
+Add the above line of code.
+
+1 of main differences between 16x and 8x is that 16x start the skips between the layers to fuse coarse from pool4. However, the 8x starts from the pool3 of the vgg.
+
+
+
+Keep all the fcn16x code except the following one:
+
+```python
+upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_x16,
+                                          output_shape=upsampled_logits_shape,
+                                          strides=[1, upsample_factor, upsample_factor, 1],
+                                          padding='SAME')
 ```
-
-对应关系可由**VOCcode/VOClabelcolormap.m**计算得出，作业代码中也有计算对应关系的代码，这里不再详述，请学员自行理解代码。
-
->需要注意，分类中其实还有一个编号为255的分类，其颜色对应[224, 224, 192],这个分类用作边界着色，这里不处理这个分类。
-
-### 训练数据准备
-训练数据需要预先打包成tfrecord格式，本步骤在本地完成。
-
-打包使用作业代码中的**convert_fcn_dataset.py**脚本进行。脚本内容已经删掉一部分，需要由学员自行补全缺失部分的代码。
-
-```
-python3 convert_fcn_dataset.py --data_dir=/path/to/VOCdevkit/VOC2012/ --output_dir=./
-```
+Because in fcn8x we need upsample by 8 rather than 16 in the end. So we deleted the above.
 
 
-本步骤最终生成的两个文件**fcn_train.record**,**fcn_val.record**分别在400MB左右，共800MB左右，如果最后的文件大小过大或过小，生成数据的过程可能有问题，请注意检查。
 
->提示：可以参考week8中数据集生成部分的代码来补全这里的代码。
+The additional code for the fcn8x started from the following:
 
-### 数据集上传
-请参考week7,week8中的内容，这里不再详述。
+~~~~python
+#Add 1x1 conv to the pool3 of Vgg16 and call it score_pool3. Thus produce an additional class predictions. There are new parameters added here but initialed with zeros thus the net starts with unmodified prediction.
+with tf.variable_scope('vgg_16/fc8'):
+    logging.debug('score pool3...')
+    aux_logits_8s = slim.conv2d(pool3_feature, number_of_classes, [1, 1],
+                             activation_fn=None,
+                             weights_initializer=tf.zeros_initializer,
+                             scope='conv_pool3') #score_pool3
 
-### 预训练模型
-预训练模型使用tensorflow，modelzoo中的VGG16模型，请学员自行到modelzoo中查找并将该预训练模型放到tinymind上。
+upsample_filter_np_xx2 = bilinear_upsample_weights(2,  # upsample_factor,
+                                                  number_of_classes)
+upsample_filter_tensor_xx2 = tf.Variable(upsample_filter_np_xx2, name='vgg_16/fc8/t_conv_xx2')
 
-网络有问题的学员，可以使用已经预先上传到tinymind的模型，数据集为**ai100/vgg16**.
+#We fuse this score_pool3 at stride of [1,2,2,1] and adding a 2x upsampling to bilinear interpolation but allow the parameter to be learned. Thus produced score_pool3c
+logging.debug('score pool3c...')
+upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_xx2,
+                                          output_shape=tf.shape(aux_logits_8s),
+                                          strides=[1, 2, 2, 1],
+                                          padding='SAME') #score_pool3c
 
-### 模型
-模型代码以课程视频week9 FCN部分的代码进行了修改，主要是代码整理，添加了数据输入和结果输出的部分。
+#Furthermore, we add up with the predictions (score_ pool3) to the score_pool3c.
+logging.debug('fuse pool3...')
+upsampled_logits = upsampled_logits + aux_logits_8s #fuse_pool3
 
-代码参考：https://gitee.com/ai100/quiz-w9-code.git
+upsample_filter_np_x8 = bilinear_upsample_weights(upsample_factor,
+                                                   number_of_classes)
+upsample_filter_tensor_x8 = tf.Variable(upsample_filter_np_x8, name='vgg_16/fc8/t_conv_x8')
 
-在tinymind上新建一个模型，模型设置参考如下模型：
+#Finally, the stride 8 predictions are upsampled back to the image.
+logging.debug('fuse 8x...')
+upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tensor_x8,
+                                          output_shape=upsampled_logits_shape,
+                                          strides=[1, upsample_factor, upsample_factor, 1],
+                                          padding='SAME')
+~~~~
 
-https://www.tinymind.com/ai100/quiz-w9-fcn
+Add 1x1 conv to the pool3 of Vgg16 and call it score_pool3. Thus produce an additional class predictions. There are new parameters added here but initialed with zeros thus the net starts with unmodified prediction.
 
-复制模型后可以看到模型的全部参数。
+We fuse this score_pool3 at stride of [1,2,2,1] and adding a 2x upsampling to bilinear interpolation but allow the parameter to be learned. Thus produced score_pool3c
 
-需要注意的是，代码中使用了额外的库，所以在建立模型的时候，需要在依赖项中，填入以下项目：
-```
-pydensecrf
-opencv-python
-```
->cv2即是opencv-python,本地运行的话，使用pip安装即可。这个不是一个官方版本，缺一些比较少用的功能，本作业用这个版本就足够了。官方版本需要编译，而且过程比较复杂，没有特殊必要，不要编译安装。
+Furthermore, we add up with the predictions (score_ pool3) to the score_pool3c.
 
-模型参数的解释：
-
-- checkpoint_path VGG16的预训练模型的目录，这个请根据自己建立的数据集的目录进行设置。
-- output_dir 输出目录，这里使用tinymind上的/output目录即可。
-- dataset_train train数据集的目录，这个请根据自己建立的数据集的目录进行设置。
-- dataset_val val数据集的目录，这个请根据自己建立的数据集的目录进行设置。
-- batch_size BATCH_SIZE，这里使用的是16,建立8X的FCN的时候，可能会OutOfMem，将batch_size调低即可解决。
-- max_steps MAX_STEPS， 这里运行1500步，如果batch_size调整了的话，可以考虑调整一下这里。
-- learning_rate 学习率，这里固定为1e-4, 不推荐做调整。
-
-运行过程中，模型每100个step会在/output/train下生成一个checkpoint，每200步会在/output/eval下生成四张验证图片。
-
->FC论文参考 https://arxiv.org/abs/1411.4038
-### 作业内容
-- 学员需要将convert_fcn_dataset.py中的代码补全并生成对应的数据集文件上传到tinymind。
-- 学员需要在作业提供的代码基础上添加8X的FCN实现并进行训练。
+Finally, the stride 8 predictions are upsampled back to the image.
 
 
-### 结果评估
 
-数据集：
-- 数据集中应包含train和val两个tfrecord文件，大小在400MB左右
+#### Results:
 
-在tinymind运行log的输出中，可以看到如下内容：
-```sh
-2018-01-04 11:11:20,088 - DEBUG - train.py:298 - step 1200 Current Loss: 101.153938293
-2018-01-04 11:11:20,088 - DEBUG - train.py:300 - [23.54] imgs/s
-2018-01-04 11:11:21,011 - DEBUG - train.py:307 - Model saved in file: ./out/train/model.ckpt-1200
-2018-01-04 11:11:21,018 - DEBUG - train.py:314 - validation generated at step [1200]
-2018-01-04 11:11:28,461 - DEBUG - train.py:298 - step 1210 Current Loss: 116.911231995
-2018-01-04 11:11:28,461 - DEBUG - train.py:300 - [19.11] imgs/s
-2018-01-04 11:11:35,356 - DEBUG - train.py:298 - step 1220 Current Loss: 90.7060165405
-```
+##### Dataset:
 
-训练完成之后，可以在**/output/eval**下面生成验证的图片，其中**val_xx_prediction.jpg**的图片为模型输出的预测结果，内容应可以对应相应的annotation和img。根据验证图片的内容，结果可能会有区别，但是肯定可以看到输出的结果是明显有意义的。
+Url: https://www.tinymind.com/danni0813/datasets/week9
 
-train.py中可以看到8x代码的实现。形式可能会有区别，但是有比较明显的三个上采样过程，两个2X，一个8X，及其结果的融合。
+##### Content:
 
-效果如下：
-原图
+* fcn_val.record - 399.98MB
+* fcn_train.record - 403.41MB
+* vgg_16.ckpt - 527.8MB
 
-![原图](val_1000_img.jpg)
+Executing the run produces the following - Execution 1:
 
-标签
+**log:**
 
-![标签](val_1000_annotation.jpg)
+~~~~python
+2018-02-18 15:59:06,203 - DEBUG - train.py:322 - step 1380 Current Loss: 112.78339385986328 
+2018-02-18 15:59:06,203 - DEBUG - train.py:324 - [9.92] imgs/s
+2018-02-18 15:59:22,601 - DEBUG - train.py:322 - step 1390 Current Loss: 99.02734375 
+2018-02-18 15:59:22,601 - DEBUG - train.py:324 - [9.76] imgs/s
+2018-02-18 15:59:39,192 - DEBUG - train.py:322 - step 1400 Current Loss: 89.30299377441406 
+2018-02-18 15:59:39,192 - DEBUG - train.py:324 - [9.64] imgs/s
+2018-02-18 15:59:41,042 - DEBUG - train.py:331 - Model saved in file: /output/train/model.ckpt-1400
+2018-02-18 15:59:41,043 - DEBUG - train.py:338 - validation generated at step [1400]
+2018-02-18 15:59:58,950 - DEBUG - train.py:322 - step 1410 Current Loss: 75.853271484375 
+2018-02-18 15:59:58,950 - DEBUG - train.py:324 - [8.10] imgs/s
+2018-02-18 16:00:15,966 - DEBUG - train.py:322 - step 1420 Current Loss: 98.62287139892578 
+2018-02-18 16:00:15,966 - DEBUG - train.py:324 - [9.40] imgs/s
+2018-02-18 16:00:32,539 - DEBUG - train.py:322 - step 1430 Current Loss: 88.7820053100586 
+2018-02-18 16:00:32,539 - DEBUG - train.py:324 - [9.65] imgs/s
+2018-02-18 16:00:48,897 - DEBUG - train.py:322 - step 1440 Current Loss: 113.26451110839844 
+2018-02-18 16:00:48,897 - DEBUG - train.py:324 - [9.78] imgs/s
+2018-02-18 16:01:05,085 - DEBUG - train.py:322 - step 1450 Current Loss: 140.9359893798828 
+2018-02-18 16:01:05,085 - DEBUG - train.py:324 - [9.88] imgs/s
+2018-02-18 16:01:21,508 - DEBUG - train.py:322 - step 1460 Current Loss: 90.7876968383789 
+2018-02-18 16:01:21,508 - DEBUG - train.py:324 - [9.74] imgs/s
+2018-02-18 16:01:38,097 - DEBUG - train.py:322 - step 1470 Current Loss: 68.58013153076172 
+2018-02-18 16:01:38,098 - DEBUG - train.py:324 - [9.64] imgs/s
+2018-02-18 16:01:54,426 - DEBUG - train.py:322 - step 1480 Current Loss: 89.13813018798828 
+2018-02-18 16:01:54,426 - DEBUG - train.py:324 - [9.80] imgs/s
+2018-02-18 16:02:10,907 - DEBUG - train.py:322 - step 1490 Current Loss: 69.51349639892578 
+2018-02-18 16:02:10,908 - DEBUG - train.py:324 - [9.71] imgs/s
+2018-02-18 16:02:27,336 - DEBUG - train.py:322 - step 1500 Current Loss: 64.83626556396484 
+2018-02-18 16:02:27,337 - DEBUG - train.py:324 - [9.74] imgs/s
+2018-02-18 16:02:29,171 - DEBUG - train.py:331 - Model saved in file: /output/train/model.ckpt-1500
+2018-02-18 16:02:45,180 - DEBUG - train.py:357 - Model saved in file: /output/train/model.ckpt-1500
+~~~~
 
-预测
+A section of log is shown above to demonstrate that the running was successful and appropriate model ckpt is saved.
 
-![预测](val_1000_prediction.jpg)
+**The parameter setting is the following for the above log:**
 
-CRF之后的预测
+~~~~
+batch_size: 16
+output_dir: /output
+checkpoint_path: /data/danni0813/week9/vgg_16.ckpt
+dataset_train: /data/danni0813/week9/fcn_train.record
+dataset_val: /data/danni0813/week9/fcn_val.record
+~~~~
 
-![预测](val_1000_prediction_crfed.jpg)
+![eval/val_1000_img.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_img.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004501&Signature=v1b7I7zMH1%2ByAJRB87Igf1RTzIGVrKAXTbtFabe5i7INxLoW%2B9T47KRSjajGCvtazm4pl5QnwvSJC7FMj8Lop91ExC%2FumUDPWYBWKZDzgczJTIC887SdLSSR46Fbr1ZCi1Jr2D4JpO%2F52%2BQkxqd9aIkYnUuQESGTzAJuEQVh4jUuo5mKdFJsMPNZsNxreMA5lEpZ%2Fml%2BRNXSG9vQnIcsx%2B8469BZAXhvTKjDAjC%2BMFeSEQ%2Fz%2FHeAV44bBvuGR7CroLnKDCcmjTCaCsQ7F8FNt9X7%2BncEgS3wE58uJs8cNvBg2isfvV5obs662mJemvLuouqR%2B69ccsEc9MUyQc5dbw%3D%3D)
 
-提供一份文档，描述自己的8Xfcn实现，需要有对关键代码的解释。描述自己对fcn的理解。
-### 参考内容
 
-本地运行训练使用的命令行：
-```sh
-python train.py --checkpoint_path ./vgg_16.ckpt --output_dir ./output --dataset_train ./fcn_train.record --dataset_val ./fcn_val.record --batch_size 16 --max_steps 2000
-```
+
+![eval/val_1000_annotation.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_annotation.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004482&Signature=VbMQkF30S2R1HzZnJCeSUVA%2Bc1iYJO7SY95p5E7KNqBQEpy6wKCvcp7%2FQvla38Ew5zdsYflPNs%2B%2FvXkdnTuoCbQZvQwWFLVp872PsNnVtLVXvWiruaQ%2BRmJ1qLw1%2FjYALs5KFp7Ab96lfFy4E6rQG1MmW84h4LlhmoSdGjxdVx%2Fak98lllXcvH60dbBzMOk%2BJ74aFvjThhLxcOhywnl5YuqQDYYqWcskbm%2F62mqjnuvaUGvzCcsSbLANTIQIGNcVEm6bHKO5Yx%2Bzg8sj%2FXGu1%2FEYYME2MfQ5CJx9nntokd5tc8ntphxrrQMNn7KQ6a%2FKQzg%2Bcn%2F%2BprO04xcRUl8h9w%3D%3D)
+
+![eval/val_1000_prediction.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_prediction.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004528&Signature=V%2FcK5w4Z%2B8wWxsCCO%2FRTZ%2FThdWYAzFwup8SnvnlSOMuwGFtxh1Y8yEhYsIjC64JRxnp5lrkmrjR0yrHELXi3a7R5lyz6V8KD2EW15pyJDHMiMAi3Z1oTHcv7FKc1lqYKCLP6a%2BEL5lEaOUWiJHSK6TmngMOXnpNrjXTmX7LPv9J0QSwSMpGVP7E34sQ2CmL%2B2hSYMVz3J3p5k6N4e7DRrHeDWMr52cFKX1X5HqUuCOlEQrxmhTSDNRoNGa5KxaetkjPRLYVabYv%2BKLzUh4j4j9VKWM8wS5Ydhk0U8PMNXhtl1y00yeicrqqwU6djxXXNvHnwiIBIiiw9wqE%2BniJ94Q%3D%3D)
+
+![eval/val_1000_prediction_crfed.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_prediction_crfed.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004546&Signature=A0P9zE%2Bji8E5ww3ceKArBLHkE%2BDN0hmNfpjIPazJwwyxY64oKPniW29XIO13jHD%2F0j%2B%2FqOKI%2BokvaX4qRLivCo2xsGCI1ARXDuM%2Bj4%2F4hKursjkPvNTpbTIkbSLQsfDycRifsPx9vo8q1Vi3eEM%2BJrc%2BCYai3ycNUvBGpDdqoJOHFfyl62wN4JTpEiVFV4Mi%2FNVJLuUnCUJ5%2BGrbXQJzXPaQCfHCSOXeDcxBkGCZSZGEbi0bA4sXA6eCosanC95uGiZtp0oA8goeZDpLyXbOn%2BJRad2qLqq1AyC3h0peKzkUhMGe9G112YNBpoSvfLf5BYVioNOTnZ57u4M8J7LFOQ%3D%3D)
+
+![eval/val_1000_overlay.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_overlay.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004587&Signature=VQbWlG8fkxf8lfRa%2F6Fe24gpM3N8kpQ%2BDmGBI4E%2F1u5jLaH%2Bo2ath2lRSNBW2KofgivTzxcSqTdq%2BSBfhINHk4JvxMYEJam1jXIezAtLv%2FbsY84PwS1gzUm5u7E5NX1tq4yxAfCVj6sSGKJdPprT1WLHJYGiNadidMTVIrussm2jlSmP%2Bxe7D12DkxprgbVrevBpX9XBYVJ%2BoCxoB3%2FiwEZ%2BT7UJrA5PuOMmgl090GGW%2Bt2qs3yh774E5H2sPdrYXNXf798oxgM3okpUiTxeBUnVh2fvK38CUeA7LJvG%2F3FBQSt2Y85jQd8jOHiY2L6xqQCjU%2Basb3XNEYjT4lUMZw%3D%3D)
+
+The above is the evaluation result for this execution.
+
+
+
+Execution2 
+
+~~~~python
+2018-02-19 02:46:53,525 - DEBUG - train.py:322 - step 1390 Current Loss: 58.772987365722656 
+2018-02-19 02:46:53,525 - DEBUG - train.py:324 - [11.45] imgs/s
+2018-02-19 02:47:21,337 - DEBUG - train.py:322 - step 1400 Current Loss: 77.37055969238281 
+2018-02-19 02:47:21,337 - DEBUG - train.py:324 - [11.51] imgs/s
+2018-02-19 02:47:23,254 - DEBUG - train.py:331 - Model saved in file: /output/train/model.ckpt-1400
+2018-02-19 02:47:23,254 - DEBUG - train.py:338 - validation generated at step [1400]
+2018-02-19 02:47:52,427 - DEBUG - train.py:322 - step 1410 Current Loss: 47.03799819946289 
+2018-02-19 02:47:52,427 - DEBUG - train.py:324 - [10.29] imgs/s
+2018-02-19 02:48:20,060 - DEBUG - train.py:322 - step 1420 Current Loss: 65.40450286865234 
+2018-02-19 02:48:20,061 - DEBUG - train.py:324 - [11.58] imgs/s
+2018-02-19 02:48:47,591 - DEBUG - train.py:322 - step 1430 Current Loss: 51.28940963745117 
+2018-02-19 02:48:47,591 - DEBUG - train.py:324 - [11.62] imgs/s
+2018-02-19 02:49:15,245 - DEBUG - train.py:322 - step 1440 Current Loss: 41.37165451049805 
+2018-02-19 02:49:15,245 - DEBUG - train.py:324 - [11.57] imgs/s
+2018-02-19 02:49:42,886 - DEBUG - train.py:322 - step 1450 Current Loss: 44.56869888305664 
+2018-02-19 02:49:42,886 - DEBUG - train.py:324 - [11.58] imgs/s
+2018-02-19 02:50:10,580 - DEBUG - train.py:322 - step 1460 Current Loss: 38.67291259765625 
+2018-02-19 02:50:10,580 - DEBUG - train.py:324 - [11.55] imgs/s
+2018-02-19 02:50:38,159 - DEBUG - train.py:322 - step 1470 Current Loss: 67.04952239990234 
+2018-02-19 02:50:38,159 - DEBUG - train.py:324 - [11.60] imgs/s
+2018-02-19 02:51:05,630 - DEBUG - train.py:322 - step 1480 Current Loss: 46.47848892211914 
+2018-02-19 02:51:05,630 - DEBUG - train.py:324 - [11.65] imgs/s
+2018-02-19 02:51:33,226 - DEBUG - train.py:322 - step 1490 Current Loss: 45.22264862060547 
+2018-02-19 02:51:33,226 - DEBUG - train.py:324 - [11.60] imgs/s
+2018-02-19 02:52:00,915 - DEBUG - train.py:322 - step 1500 Current Loss: 71.33306121826172 
+2018-02-19 02:52:00,915 - DEBUG - train.py:324 - [11.56] imgs/s
+2018-02-19 02:52:02,817 - DEBUG - train.py:331 - Model saved in file: /output/train/model.ckpt-1500
+2018-02-19 02:52:20,000 - DEBUG - train.py:357 - Model saved in file: /output/train/model.ckpt-1500
+~~~~
+
+
+
+Parameters are the following:
+
+~~~~python
+batch_size 32
+output_dir /output
+checkpoint_path /data/danni0813/week9/vgg_16.ckpt
+dataset_train /data/danni0813/week9/fcn_train.record
+dataset_val /data/danni0813/week9/fcn_val.record
+~~~~
+
+![eval/val_1000_img.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_img.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012147&Signature=0xqWNS%2BsYH5kStK0uOBYJ3wwrdJIH8761oKRUhd8CLKFPzArvtIwCRDpcTCcBXDvtDhC2sUbisEKj%2BTqLOub4082e0kXadJzzykIqKHEATS5cKamB6ueQLsx5dHNgGveRRVqi4XaESjDNwdWQegAUw64Xkv9KpPDPIfEQS91BaufTtuCPHs2iDz35LJYFmlS1DpE7kKaxGhg8egHRxUWHTQS%2FjtAjSed8WbrgMeYbDO57NIHPAwV5Q%2FZZTnqcRO5OjC9ihyFUQ5I8n9S1YZGUdM8nXdzePRVU7r1sbzfoTwJEQQztz8FCFRA6SmF1mFVOyHyVE3xqAu7V4qexf6o8w%3D%3D)
+
+
+
+![eval/val_1000_annotation.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_annotation.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012162&Signature=IBgzO03ywscWXkwEcgFcW6on4wN2j4t0wODjSgnKwNdhwqkmqepSHDKZWsqLC6CW7i8mTxx%2FWq8uQ98AsRXv5ADncj%2BeBvraWz41aBirnhhlsw0A0haMm1m0TvRy3ondte4xuCPZ87rgZyuYs%2FgT0wpBYh3J2Vz2bsZ3km%2FsI1dF5Wf8hnTC6%2BIXcOGk9nnKki5kV26wnm3y8szNtgyp0z8HgeJJoLZ1pgh1lWatfWRz%2B1PKnCxZqXkKi66HCzfn%2FVdA%2FerRBaWxOrX7DSGHsd1RpZu2aD90GOy7kEn8HqG1GZhqV6QN3ccfseQGen8v7%2FlbSzeFPE03HirpLDbeHg%3D%3D)
+
+![eval/val_1000_prediction.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_prediction.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012171&Signature=UuynorXiHRFfe4o0GVtYHnIXyd7lrqCWJCDlTbqW%2FddeB5ix%2F83QosneElRco3uLZdlufGgZGq1jvux0FGf0pJBqP4%2BeZ3ld5wIac1Eu6ot3pHWCeZvZR4m49q1jisVKXpBS4RmrM5LM1STfCqaeqv2GNWuIwQ4QPfTHX2piYAqk5G1B2fg7mNxKNd%2F9iB4GxCZ8BxF5sA83o1GQJBoKT9YmdR4empG7sDA1FwwlYQkumXQxXI0mEQGUM9Z7UtKTFPlZ6ZA%2FsD0iVXbw5a0Mb32NUHrrjw%2BcTc9QafLCEi%2BsxDKGYEDm18ilURI4ydti2EXF8BuRvNIWg4TrWRJNeg%3D%3D)
+
+![eval/val_1000_prediction_crfed.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_prediction_crfed.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012179&Signature=AqS%2FDuEBZ%2BLFNgHUnyTNDv7ipytOedTG0PXOWViBv8Y913xiOQZCNB1elM6aw8rn35VoOezeQ8qMSmkRSeBweH25ad5M%2BvSVmKLIxesd9oE%2BRjqtq1viUP2XEbRjg5uUUkujTMeR%2BYw%2B9ceA%2FboYdP8bLkcE6yFSMvdNvhFb8x3j87NG0gEHwx62IeMyprgNwUofdecyxv4Q0csYThtcyBZkDSDCBpb4x5yhBniJigAB8zVT1G5xg3Ydmjuh4HAjXNQK6ZOA%2FjcOmdr8tX%2BGByEnNZ4EMTcpeGslUj7PVmbypMOEL%2BqlkYu%2FyVO9bghfNXtnmpAXyicYCfsX5%2F1KiQ%3D%3D)
+
+![eval/val_1000_overlay.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_overlay.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012190&Signature=IGc7s2BAxO5hKYGemkUjZ7DOXy09%2Bg7TFd7ZGI%2FFCA6V6wpLRqsicSSiha%2B1nSglwAz3m%2BqiS%2Bi9Dtfbd%2BFfoWqUhBHFa%2FaGaqdg%2BPTWo3DA8DVVdfSnx2lasvVXpMKacHgxDdH2JB%2FMCd%2FGqUaBPT%2B55PTHTad3cn6WU%2Bfw5A6wUzAD6gFMRPcvmfApmELWV%2BRfmPe7UyYGBaoSOGeexLlro6X55G1PqgIj17yt22cGzYbGtVPHQfvz2A4uNjwbI9QWfa%2F1SdMp1eaD3NJDanGi8ehkzjINiin6OEJQAZzAKjGC5akXDMLW%2BEx%2F0MKxuK9yRZaqYMc2xYI%2Byo9xWQ%3D%3D)
+
+Same iteration but larger batch size. The model had shown some more segment on the left front light of the car. Furthermore, it also shows the better prediction on the right side of the windows.
