@@ -185,16 +185,16 @@ dataset_train: /data/danni0813/week9/fcn_train.record
 dataset_val: /data/danni0813/week9/fcn_val.record
 ~~~~
 
-![execs_5q0vgwzu_output_eval_val_1000_img](result/execs_5q0vgwzu_output_eval_val_1000_img.jpg)
+![image](result/image.jpg)
 
 
-![execs_5q0vgwzu_output_eval_val_1000_annotation](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_annotation.jpg)
+![annotation](result/execs_5q0vgwzu_output_eval_val_1000_annotation.jpg)
 
-![execs_5q0vgwzu_output_eval_val_1000_prediction](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_prediction.jpg)
+![prediction](result/execs_5q0vgwzu_output_eval_val_1000_prediction.jpg)
 
-![execs_5q0vgwzu_output_eval_val_1000_prediction_crfed](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_prediction_crfed.jpg)
+![prediction_crfed](result/execs_5q0vgwzu_output_eval_val_1000_prediction_crfed.jpg)
 
-![execs_5q0vgwzu_output_eval_val_1000_overlay](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_overlay.jpg)
+![overlay](result/execs_5q0vgwzu_output_eval_val_1000_overlay.jpg)
 
 The above is the evaluation result for this execution.
 
@@ -247,14 +247,14 @@ dataset_val /data/danni0813/week9/fcn_val.record
 
 
 
-![execs_fut8p46y_output_eval_val_1000_img](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_img.jpg)
+![execs_fut8p46y_output_eval_val_1000_img](result2/execs_fut8p46y_output_eval_val_1000_img.jpg)
 
-![execs_fut8p46y_output_eval_val_1000_annotation](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_annotation.jpg)
+![execs_fut8p46y_output_eval_val_1000_annotation](result2/execs_fut8p46y_output_eval_val_1000_annotation.jpg)
 
-![execs_fut8p46y_output_eval_val_1000_prediction](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_prediction.jpg)
+![execs_fut8p46y_output_eval_val_1000_prediction](result2/execs_fut8p46y_output_eval_val_1000_prediction.jpg)
 
-![execs_fut8p46y_output_eval_val_1000_prediction_crfed](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_prediction_crfed.jpg)
+![execs_fut8p46y_output_eval_val_1000_prediction_crfed](result2/execs_fut8p46y_output_eval_val_1000_prediction_crfed.jpg)
 
-![execs_fut8p46y_output_eval_val_1000_overlay](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_overlay.jpg)
+![execs_fut8p46y_output_eval_val_1000_overlay](result2/execs_fut8p46y_output_eval_val_1000_overlay.jpg)
 
 Same iteration but larger batch size. The model had shown some more segment on the left front light of the car. Furthermore, it also shows the better prediction on the right side of the windows.
