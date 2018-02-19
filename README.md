@@ -177,7 +177,7 @@ A section of log is shown above to demonstrate that the running was successful a
 
 **The parameter setting is the following for the above log:**
 
-~~~~
+~~~~python
 batch_size: 16
 output_dir: /output
 checkpoint_path: /data/danni0813/week9/vgg_16.ckpt
@@ -185,17 +185,17 @@ dataset_train: /data/danni0813/week9/fcn_train.record
 dataset_val: /data/danni0813/week9/fcn_val.record
 ~~~~
 
-![eval/val_100001_img.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_img.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004501&Signature=v1b7I7zMH1%2ByAJRB87Igf1RTzIGVrKAXTbtFabe5i7INxLoW%2B9T47KRSjajGCvtazm4pl5QnwvSJC7FMj8Lop91ExC%2FumUDPWYBWKZDzgczJTIC887SdLSSR46Fbr1ZCi1Jr2D4JpO%2F52%2BQkxqd9aIkYnUuQESGTzAJuEQVh4jUuo5mKdFJsMPNZsNxreMA5lEpZ%2Fml%2BRNXSG9vQnIcsx%2B8469BZAXhvTKjDAjC%2BMFeSEQ%2Fz%2FHeAV44bBvuGR7CroLnKDCcmjTCaCsQ7F8FNt9X7%2BncEgS3wE58uJs8cNvBg2isfvV5obs662mJemvLuouqR%2B69ccsEc9MUyQc5dbw%3D%3D)
+![execs_5q0vgwzu_output_eval_val_1000_img](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_img.jpg)
 
 
 
-![eval/val_100001_annotation.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_annotation.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004482&Signature=VbMQkF30S2R1HzZnJCeSUVA%2Bc1iYJO7SY95p5E7KNqBQEpy6wKCvcp7%2FQvla38Ew5zdsYflPNs%2B%2FvXkdnTuoCbQZvQwWFLVp872PsNnVtLVXvWiruaQ%2BRmJ1qLw1%2FjYALs5KFp7Ab96lfFy4E6rQG1MmW84h4LlhmoSdGjxdVx%2Fak98lllXcvH60dbBzMOk%2BJ74aFvjThhLxcOhywnl5YuqQDYYqWcskbm%2F62mqjnuvaUGvzCcsSbLANTIQIGNcVEm6bHKO5Yx%2Bzg8sj%2FXGu1%2FEYYME2MfQ5CJx9nntokd5tc8ntphxrrQMNn7KQ6a%2FKQzg%2Bcn%2F%2BprO04xcRUl8h9w%3D%3D)
+![execs_5q0vgwzu_output_eval_val_1000_annotation](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_annotation.jpg)
 
-![eval/val_100001_prediction.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_prediction.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004528&Signature=V%2FcK5w4Z%2B8wWxsCCO%2FRTZ%2FThdWYAzFwup8SnvnlSOMuwGFtxh1Y8yEhYsIjC64JRxnp5lrkmrjR0yrHELXi3a7R5lyz6V8KD2EW15pyJDHMiMAi3Z1oTHcv7FKc1lqYKCLP6a%2BEL5lEaOUWiJHSK6TmngMOXnpNrjXTmX7LPv9J0QSwSMpGVP7E34sQ2CmL%2B2hSYMVz3J3p5k6N4e7DRrHeDWMr52cFKX1X5HqUuCOlEQrxmhTSDNRoNGa5KxaetkjPRLYVabYv%2BKLzUh4j4j9VKWM8wS5Ydhk0U8PMNXhtl1y00yeicrqqwU6djxXXNvHnwiIBIiiw9wqE%2BniJ94Q%3D%3D)
+![execs_5q0vgwzu_output_eval_val_1000_prediction](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_prediction.jpg)
 
-![eval/val_100001_prediction_crfed.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_prediction_crfed.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004546&Signature=A0P9zE%2Bji8E5ww3ceKArBLHkE%2BDN0hmNfpjIPazJwwyxY64oKPniW29XIO13jHD%2F0j%2B%2FqOKI%2BokvaX4qRLivCo2xsGCI1ARXDuM%2Bj4%2F4hKursjkPvNTpbTIkbSLQsfDycRifsPx9vo8q1Vi3eEM%2BJrc%2BCYai3ycNUvBGpDdqoJOHFfyl62wN4JTpEiVFV4Mi%2FNVJLuUnCUJ5%2BGrbXQJzXPaQCfHCSOXeDcxBkGCZSZGEbi0bA4sXA6eCosanC95uGiZtp0oA8goeZDpLyXbOn%2BJRad2qLqq1AyC3h0peKzkUhMGe9G112YNBpoSvfLf5BYVioNOTnZ57u4M8J7LFOQ%3D%3D)
+![execs_5q0vgwzu_output_eval_val_1000_prediction_crfed](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_prediction_crfed.jpg)
 
-![eval/val_100001_overlay.jpg](https://storage.googleapis.com/tinymind/execs%2F5q0vgwzu%2Foutput%2Feval%2Fval_1000_overlay.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519004587&Signature=VQbWlG8fkxf8lfRa%2F6Fe24gpM3N8kpQ%2BDmGBI4E%2F1u5jLaH%2Bo2ath2lRSNBW2KofgivTzxcSqTdq%2BSBfhINHk4JvxMYEJam1jXIezAtLv%2FbsY84PwS1gzUm5u7E5NX1tq4yxAfCVj6sSGKJdPprT1WLHJYGiNadidMTVIrussm2jlSmP%2Bxe7D12DkxprgbVrevBpX9XBYVJ%2BoCxoB3%2FiwEZ%2BT7UJrA5PuOMmgl090GGW%2Bt2qs3yh774E5H2sPdrYXNXf798oxgM3okpUiTxeBUnVh2fvK38CUeA7LJvG%2F3FBQSt2Y85jQd8jOHiY2L6xqQCjU%2Basb3XNEYjT4lUMZw%3D%3D)
+![execs_5q0vgwzu_output_eval_val_1000_overlay](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_overlay.jpg)
 
 The above is the evaluation result for this execution.
 
@@ -246,16 +246,16 @@ dataset_train /data/danni0813/week9/fcn_train.record
 dataset_val /data/danni0813/week9/fcn_val.record
 ~~~~
 
-![eval/val_1000_img.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_img.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012147&Signature=0xqWNS%2BsYH5kStK0uOBYJ3wwrdJIH8761oKRUhd8CLKFPzArvtIwCRDpcTCcBXDvtDhC2sUbisEKj%2BTqLOub4082e0kXadJzzykIqKHEATS5cKamB6ueQLsx5dHNgGveRRVqi4XaESjDNwdWQegAUw64Xkv9KpPDPIfEQS91BaufTtuCPHs2iDz35LJYFmlS1DpE7kKaxGhg8egHRxUWHTQS%2FjtAjSed8WbrgMeYbDO57NIHPAwV5Q%2FZZTnqcRO5OjC9ihyFUQ5I8n9S1YZGUdM8nXdzePRVU7r1sbzfoTwJEQQztz8FCFRA6SmF1mFVOyHyVE3xqAu7V4qexf6o8w%3D%3D)
 
 
+![execs_fut8p46y_output_eval_val_1000_img](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_img.jpg)
 
-![eval/val_1000_annotation.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_annotation.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012162&Signature=IBgzO03ywscWXkwEcgFcW6on4wN2j4t0wODjSgnKwNdhwqkmqepSHDKZWsqLC6CW7i8mTxx%2FWq8uQ98AsRXv5ADncj%2BeBvraWz41aBirnhhlsw0A0haMm1m0TvRy3ondte4xuCPZ87rgZyuYs%2FgT0wpBYh3J2Vz2bsZ3km%2FsI1dF5Wf8hnTC6%2BIXcOGk9nnKki5kV26wnm3y8szNtgyp0z8HgeJJoLZ1pgh1lWatfWRz%2B1PKnCxZqXkKi66HCzfn%2FVdA%2FerRBaWxOrX7DSGHsd1RpZu2aD90GOy7kEn8HqG1GZhqV6QN3ccfseQGen8v7%2FlbSzeFPE03HirpLDbeHg%3D%3D)
+![execs_fut8p46y_output_eval_val_1000_annotation](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_annotation.jpg)
 
-![eval/val_1000_prediction.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_prediction.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012171&Signature=UuynorXiHRFfe4o0GVtYHnIXyd7lrqCWJCDlTbqW%2FddeB5ix%2F83QosneElRco3uLZdlufGgZGq1jvux0FGf0pJBqP4%2BeZ3ld5wIac1Eu6ot3pHWCeZvZR4m49q1jisVKXpBS4RmrM5LM1STfCqaeqv2GNWuIwQ4QPfTHX2piYAqk5G1B2fg7mNxKNd%2F9iB4GxCZ8BxF5sA83o1GQJBoKT9YmdR4empG7sDA1FwwlYQkumXQxXI0mEQGUM9Z7UtKTFPlZ6ZA%2FsD0iVXbw5a0Mb32NUHrrjw%2BcTc9QafLCEi%2BsxDKGYEDm18ilURI4ydti2EXF8BuRvNIWg4TrWRJNeg%3D%3D)
+![execs_fut8p46y_output_eval_val_1000_prediction](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_prediction.jpg)
 
-![eval/val_1000_prediction_crfed.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_prediction_crfed.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012179&Signature=AqS%2FDuEBZ%2BLFNgHUnyTNDv7ipytOedTG0PXOWViBv8Y913xiOQZCNB1elM6aw8rn35VoOezeQ8qMSmkRSeBweH25ad5M%2BvSVmKLIxesd9oE%2BRjqtq1viUP2XEbRjg5uUUkujTMeR%2BYw%2B9ceA%2FboYdP8bLkcE6yFSMvdNvhFb8x3j87NG0gEHwx62IeMyprgNwUofdecyxv4Q0csYThtcyBZkDSDCBpb4x5yhBniJigAB8zVT1G5xg3Ydmjuh4HAjXNQK6ZOA%2FjcOmdr8tX%2BGByEnNZ4EMTcpeGslUj7PVmbypMOEL%2BqlkYu%2FyVO9bghfNXtnmpAXyicYCfsX5%2F1KiQ%3D%3D)
+![execs_fut8p46y_output_eval_val_1000_prediction_crfed](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_prediction_crfed.jpg)
 
-![eval/val_1000_overlay.jpg](https://storage.googleapis.com/tinymind/execs%2Ffut8p46y%2Foutput%2Feval%2Fval_1000_overlay.jpg?GoogleAccessId=production%40colafly-tinymind.iam.gserviceaccount.com&Expires=1519012190&Signature=IGc7s2BAxO5hKYGemkUjZ7DOXy09%2Bg7TFd7ZGI%2FFCA6V6wpLRqsicSSiha%2B1nSglwAz3m%2BqiS%2Bi9Dtfbd%2BFfoWqUhBHFa%2FaGaqdg%2BPTWo3DA8DVVdfSnx2lasvVXpMKacHgxDdH2JB%2FMCd%2FGqUaBPT%2B55PTHTad3cn6WU%2Bfw5A6wUzAD6gFMRPcvmfApmELWV%2BRfmPe7UyYGBaoSOGeexLlro6X55G1PqgIj17yt22cGzYbGtVPHQfvz2A4uNjwbI9QWfa%2F1SdMp1eaD3NJDanGi8ehkzjINiin6OEJQAZzAKjGC5akXDMLW%2BEx%2F0MKxuK9yRZaqYMc2xYI%2Byo9xWQ%3D%3D)
+![execs_fut8p46y_output_eval_val_1000_overlay](C:\Users\George.Zheng\Desktop\danni\result2\execs_fut8p46y_output_eval_val_1000_overlay.jpg)
 
 Same iteration but larger batch size. The model had shown some more segment on the left front light of the car. Furthermore, it also shows the better prediction on the right side of the windows.
