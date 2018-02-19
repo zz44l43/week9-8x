@@ -185,8 +185,7 @@ dataset_train: /data/danni0813/week9/fcn_train.record
 dataset_val: /data/danni0813/week9/fcn_val.record
 ~~~~
 
-![execs_5q0vgwzu_output_eval_val_1000_img](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_img.jpg)
-
+![execs_5q0vgwzu_output_eval_val_1000_img](result/execs_5q0vgwzu_output_eval_val_1000_img.jpg)
 
 
 ![execs_5q0vgwzu_output_eval_val_1000_annotation](C:\Users\George.Zheng\Desktop\danni\result\execs_5q0vgwzu_output_eval_val_1000_annotation.jpg)
